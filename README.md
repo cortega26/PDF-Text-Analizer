@@ -15,7 +15,7 @@ To run the script, you need to have Python 3.x installed on your system. You als
 
 ## Usage
 
-1. Run the script: `python3 main.py`
+1. Run the script: ```python3 main.py -u "https://www.example.com/document.pdf" -s "example phrase"```
 2. Enter the URL of the PDF you want to analyze
 3. Enter a word or phrase to search for in the text (optional)
 4. The script will then download the PDF, extract the text, and perform analysis on the text
