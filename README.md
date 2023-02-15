@@ -66,7 +66,7 @@ If you want to request a new feature, you can open an issue on the issue tracker
 
 ## Contact
 
-If you have any questions or comments, you can contact the project maintainers at the following email addressNSE) file for details.
+If you have any questions or comments, you can contact me for details.
 
 
 ## License
