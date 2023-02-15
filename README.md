@@ -10,11 +10,6 @@ This is a Python script that downloads a PDF from a URL, extracts the text, and 
 - [nltk](https://pypi.org/project/nltk/)
 - [langdetect](https://pypi.org/project/langdetect/)
 
-## Installation
-
-1. Clone the repository: `git clone https://github.com/username/repo.git`
-2. Install the requirements: `pip3 install -r requirements.txt`
-
 ## Usage
 
 1. Run the script: `python3 pdf_analysis.py`
