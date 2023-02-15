@@ -1,14 +1,18 @@
 # PDF Text Analysis
 
-This is a Python script that downloads a PDF from a URL, converts it to text, and performs text analysis. The text analysis includes detecting the language of the text, removing stopwords and counting the frequency of words and phrases. The script supports multiple languages.
+PDF Text Analysis is a Python script that downloads a PDF from a URL, converts it to text, and performs text analysis. The text analysis includes detecting the language of the text, removing stopwords, and counting the frequency of words and phrases. The script supports multiple languages.
+
 
 ## Requirements
+
+To run the script, you need to have Python 3.x installed on your system. You also need to install the following libraries:
 
 - Python 3.x
 - [requests](https://pypi.org/project/requests/)
 - [PyPDF2](https://pypi.org/project/PyPDF2/)
 - [nltk](https://pypi.org/project/nltk/)
 - [langdetect](https://pypi.org/project/langdetect/)
+
 
 ## Usage
 
@@ -17,6 +21,7 @@ This is a Python script that downloads a PDF from a URL, converts it to text, an
 3. Enter a word or phrase to search for in the text (optional)
 4. The script will then download the PDF, extract the text, and perform analysis on the text
 5. The analysis includes word frequency counts, most common words, and a search for a specific word or phrase
+
 
 ## Supported Languages
 
