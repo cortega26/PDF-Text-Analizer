@@ -1,0 +1,4 @@
+requests
+PyPDF2
+nltk
+langdetect
