@@ -12,7 +12,7 @@ This is a Python script that downloads a PDF from a URL, converts it to text, an
 
 ## Usage
 
-1. Run the script: `python3 pdf_analysis.py`
+1. Run the script: `python3 main.py`
 2. Enter the URL of the PDF you want to analyze
 3. Enter a word or phrase to search for in the text (optional)
 4. The script will then download the PDF, extract the text, and perform analysis on the text
