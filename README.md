@@ -4,8 +4,11 @@ This is a Python script that downloads a PDF from a URL, extracts the text, and 
 
 ## Requirements
 
-- Python 3.6 or higher
-- pip3
+- Python 3.x
+- [requests](https://pypi.org/project/requests/)
+- [PyPDF2](https://pypi.org/project/PyPDF2/)
+- [nltk](https://pypi.org/project/nltk/)
+- [langdetect](https://pypi.org/project/langdetect/)
 
 ## Installation
 
