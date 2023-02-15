@@ -7,7 +7,6 @@ PDF Text Analysis is a Python script that downloads a PDF from a URL, converts i
 
 To run the script, you need to have Python 3.x installed on your system. You also need to install the following libraries:
 
-- Python 3.x
 - [requests](https://pypi.org/project/requests/)
 - [PyPDF2](https://pypi.org/project/PyPDF2/)
 - [nltk](https://pypi.org/project/nltk/)
