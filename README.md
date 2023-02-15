@@ -14,10 +14,9 @@ This is a Python script that downloads a PDF from a URL, converts it to text, an
 
 1. Run the script: `python3 pdf_analysis.py`
 2. Enter the URL of the PDF you want to analyze
-3. Enter the language of the text in the PDF
-4. Enter a word or phrase to search for in the text (optional)
-5. The script will then download the PDF, extract the text, and perform analysis on the text
-6. The analysis includes word frequency counts, most common words, and a search for a specific word or phrase
+3. Enter a word or phrase to search for in the text (optional)
+4. The script will then download the PDF, extract the text, and perform analysis on the text
+5. The analysis includes word frequency counts, most common words, and a search for a specific word or phrase
 
 ## Supported Languages
 
