@@ -64,14 +64,17 @@ If you find a bug or issue, you can report it on the issue tracker on GitHub.
 
 If you want to request a new feature, you can open an issue on the issue tracker on GitHub.
 
+
 ## Contact
 
 If you have any questions or comments, you can contact me for details.
 
 
-## License
+## Contributing
 
-This project is licensed under the MIT License. See the [LICENSE](LICEContributing
 If you want to contribute to this project, you can fork the repository, make your changes, and submit a pull request.
 
 
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/cortega26/PDF-Text-Analizer/blob/main/license.md)
