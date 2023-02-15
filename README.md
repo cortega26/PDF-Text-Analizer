@@ -54,7 +54,24 @@ To run the script, you need to have Python 3.x installed on your system. You als
 - Tajik
 - Turkish
 
+
+##Bug Reports
+
+If you find a bug or issue, you can report it on the issue tracker on GitHub.
+
+
+##Feature Requests
+
+If you want to request a new feature, you can open an issue on the issue tracker on GitHub.
+
+##Contact
+
+If you have any questions or comments, you can contact the project maintainers at the following email addressNSE) file for details.
+
+
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICEContributing
+If you want to contribute to this project, you can fork the repository, make your changes, and submit a pull request.
+
 
