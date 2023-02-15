@@ -9,16 +9,16 @@ from langdetect.lang_detect_exception import LangDetectException
 from languages import languages
 
 
-# Download PDF from URL
 def download_pdf(url):
+    """Downloads a PDF file from a given URL."""
     response = requests.get(url)
     response.raise_for_status()
     with open("temp.pdf", "wb") as f:
         f.write(response.content)
 
 
-# Convert PDF to text
 def pdf_to_text(pdf_file):
+    """Converts a PDF file to text."""
     pdf = PyPDF2.PdfReader(pdf_file)
     text = ""
     for page in range(len(pdf.pages)):
@@ -26,8 +26,8 @@ def pdf_to_text(pdf_file):
     return text
 
 
-# Remove stop words
 def remove_stop_words(text, language):
+    """Removes stop words from a given text for a given language."""
     for lang in nltk.corpus.stopwords.fileids():
         try:
             nltk.corpus.stopwords.words(lang)
@@ -44,21 +44,21 @@ def remove_stop_words(text, language):
         return text
 
 
-# Count word occurrences
 def count_words(text):
+    """Counts the occurrences of each word in a given text."""
     words = re.findall(r'\b\w+\b', text)
     word_counts = dict(Counter(words).most_common(10))
     return word_counts
 
 
-# Count word or phrase occurrences
 def count_word_or_phrase(text, word_or_phrase):
+    """Counts the number of occurrences of a given word or phrase in a given text."""
     count = text.count(word_or_phrase)
     return count
 
 
-# Detect language of text
 def detect_language(text):
+    """Detects the language of a given text."""
     try:
         language = detect(text)
         return language
@@ -66,24 +66,21 @@ def detect_language(text):
         return None
 
 
-# Main function
 def main(url, word_or_phrase):
-    # Download PDF
+    """
+    Runs the main program, which downloads a PDF file from a given URL, converts it to text,
+    removes stop words, and counts the occurrences of the top 10 most common words and a given
+    word or phrase in the text.
+    """
     download_pdf(url)
-
-    # Convert PDF to text
     text = pdf_to_text("temp.pdf")
-
-    # Detect language
     language = detect_language(text)
 
-    # Remove stop words
     if language is not None:
         filtered_text = remove_stop_words(text, language)
         word_counts = count_words(filtered_text)
         word_or_phrase_count = count_word_or_phrase(text, word_or_phrase)
 
-        # Display results
         print(f"Language: {language}")
         print("Top 10 Words:")
         for word, count in list(word_counts.items()):
@@ -92,7 +89,7 @@ def main(url, word_or_phrase):
     else:
         print("Error: Language not detected.")
 
-# Example usage
+
 if __name__ == '__main__':
     url = "https://underpost.net/ir/pdf/interes/La_Rebelion_de_Atlas.pdf"
     word_or_phrase = "¿Quién es John Galt?"
