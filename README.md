@@ -9,7 +9,6 @@ This is a Python script that downloads a PDF from a URL, converts it to text, an
 - [PyPDF2](https://pypi.org/project/PyPDF2/)
 - [nltk](https://pypi.org/project/nltk/)
 - [langdetect](https://pypi.org/project/langdetect/)
-- [collections](https://docs.python.org/3/library/collections.html)
 
 ## Usage
 
