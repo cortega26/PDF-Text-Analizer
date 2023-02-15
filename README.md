@@ -55,16 +55,16 @@ To run the script, you need to have Python 3.x installed on your system. You als
 - Turkish
 
 
-##Bug Reports
+## Bug Reports
 
 If you find a bug or issue, you can report it on the issue tracker on GitHub.
 
 
-##Feature Requests
+## Feature Requests
 
 If you want to request a new feature, you can open an issue on the issue tracker on GitHub.
 
-##Contact
+## Contact
 
 If you have any questions or comments, you can contact the project maintainers at the following email addressNSE) file for details.
 
