@@ -77,4 +77,4 @@ If you want to contribute to this project, you can fork the repository, make you
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/cortega26/PDF-Text-Analizer/blob/main/license.md)
+This project is licensed under the Apache License. See the [LICENSE](https://github.com/cortega26/PDF-Text-Analizer/blob/main/license.md)
