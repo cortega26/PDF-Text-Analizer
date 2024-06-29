@@ -3,15 +3,14 @@ import re
 from collections import Counter
 import nltk
 import requests
-import pypdf
+import PyPDF2
 from langdetect import detect, lang_detect_exception
 from languages import languages
 import string
 
 class PdfProcessor:
     """Class to process PDF files."""
-    
-    def __init__(self, url: str) -> None:
+    def __init__(self, url: str):
         self.url = url
         self.pdf_text = ""
         self.language_code = None
@@ -20,22 +19,18 @@ class PdfProcessor:
     def download_pdf(self) -> None:
         """Download a PDF file from a given URL."""
         try:
-            with requests.get(self.url) as response:
-                response.raise_for_status()
-                self.pdf_content = io.BytesIO(response.content)
+            response = requests.get(self.url)
+            response.raise_for_status()
+            self.pdf_content = io.BytesIO(response.content)
         except requests.exceptions.RequestException as e:
-            print(f"Failed to download PDF: {e}")
             raise e
 
     def convert_to_text(self) -> None:
         """Convert the downloaded PDF file to text."""
-        try:
-            pdf_reader = pypdf.PdfReader(self.pdf_content)
-            for page in range(len(pdf_reader.pages)):
-                self.pdf_text += pdf_reader.pages[page].extract_text()
-        except Exception as e:
-            print(f"Failed to convert PDF to text: {e}")
-            raise e
+        pdf_reader = PyPDF2.PdfReader(self.pdf_content)
+        for page in range(len(pdf_reader.pages)):
+            self.pdf_text += pdf_reader.pages[page].extract_text()
+        self.detect_language()
 
     def detect_language(self) -> None:
         """Detect the language of the PDF text."""
@@ -46,13 +41,9 @@ class PdfProcessor:
 
     def download_nltk_data(self) -> None:
         """Download required NLTK data."""
-        try:
-            if 'stopwords' not in nltk.data.find('corpora') or 'punkt' not in nltk.data.find('tokenizers'):
-                nltk.download('stopwords')
-                nltk.download('punkt')
-        except Exception as e:
-            print(f"Failed to download NLTK data: {e}")
-            raise e
+        if not nltk.corpus.stopwords.fileids():
+            nltk.download('stopwords')
+        nltk.download('punkt')
 
     def remove_stop_words(self) -> str:
         """Remove stop words from the PDF text."""
@@ -66,12 +57,18 @@ class PdfProcessor:
         else:
             raise Exception("Language not detected.")
 
-    def count_words(self) -> dict:
-        """Count the occurrences of each word in the PDF text, excluding punctuation."""
-        clean_text = re.sub(r'[' + string.punctuation + ']', '', self.pdf_text)
+    def count_words(self, text: str) -> dict:
+        """Count the occurrences of each word in the provided text, excluding punctuation."""
+        # Remove all punctuation characters, except for apostrophes
+        clean_text = re.sub(r'[^a-zA-Z0-9\s\']', '', text)
+
+        # Tokenize the text
         words = nltk.word_tokenize(clean_text)
+
+        # Convert words to lowercase
         words = [word.lower() for word in words]
-        
+
+        # Count word occurrences, ignoring stop words
         if self.language_code is not None:
             self.download_nltk_data()
             language_name = languages.get(self.language_code.lower(), self.language_code)
@@ -82,13 +79,10 @@ class PdfProcessor:
 
         return dict(word_counts.most_common(10))
 
-    def count_word_or_phrase(self, word_or_phrase: str) -> int:
-        """Count the number of occurrences of a given word or phrase in the PDF text."""
-        try:
-            return self.pdf_text.count(word_or_phrase)
-        except Exception as e:
-            print(f"Failed to count word or phrase: {e}")
-            return 0
+
+    def count_word_or_phrase(self, text: str, word_or_phrase: str) -> int:
+        """Count the number of occurrences of a given word or phrase in the provided text."""
+        return text.count(word_or_phrase)
 
     def main(self, word_or_phrase: str) -> dict:
         """
@@ -97,13 +91,14 @@ class PdfProcessor:
         """
         self.download_pdf()
         self.convert_to_text()
-        self.detect_language()
-        
-        if self.language_code is None:
+        if self.language_code is not None:
+            filtered_text = self.remove_stop_words()
+        else:
             raise Exception("Language not detected.")
         
-        word_counts = self.count_words()
-        word_or_phrase_count = self.count_word_or_phrase(word_or_phrase)
+        # Use filtered text for counting words and phrases
+        word_counts = self.count_words(filtered_text)
+        word_or_phrase_count = self.count_word_or_phrase(filtered_text, word_or_phrase)
         
         results = {
             "Language": languages.get(self.language_code, self.language_code),
