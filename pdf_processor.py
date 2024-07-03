@@ -56,7 +56,9 @@ class PdfProcessor:
             logging.info(" PDF converted to text successfully.")
         except Exception as e:
             logging.error(f" Failed to convert PDF to text: {e}")
-            raise e
+            raise
+        finally:
+            pdf_document.close()
 
     @staticmethod
     def extract_text_from_page(page) -> str:
@@ -79,7 +81,7 @@ class PdfProcessor:
             nltk.download('punkt', quiet=True)
         except Exception as e:
             logging.error(f" Failed to download NLTK data: {e}")
-            raise e
+            raise
 
     @staticmethod
     @functools.lru_cache(maxsize=10)
@@ -127,6 +129,8 @@ class PdfProcessor:
         except Exception as e:
             logging.error(f" Failed to extract metadata: {e}")
             return {}
+        finally:
+            pdf_document.close()
 
     def format_results(self, results: dict) -> str:
         """Format the results for better readability."""
