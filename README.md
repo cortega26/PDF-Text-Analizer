@@ -6,10 +6,16 @@ PDF Text Analyzer is a Python class that downloads a PDF from a URL, converts it
 
 To use this class, you need Python 3.x and the following libraries:
 
-- requests
-- PyMuPDF (fitz)
-- nltk
-- langdetect
+- `requests`
+- `PyMuPDF` (fitz)
+- `nltk`
+- `langdetect`
+  
+You can install the required libraries using the following command:
+
+```sh
+pip install requests PyMuPDF nltk langdetect
+```
 
 ## Usage
 
@@ -29,22 +35,44 @@ print(results)
 
 ## Features
 
-- Downloads PDF with retry mechanism
-- Extracts text using multithreading for efficiency
-- Detects document language
-- Removes stop words (with caching for optimization)
-- Counts word frequencies
-- Searches for specific phrases
-- Extracts PDF metadata
-- Supports multiple languages (based on NLTK's stopwords corpus)
+- **PDF Download**: Downloads PDFs with retry mechanism.
+- **Text Extraction**: Extracts text using multiprocessing for efficiency.
+- **Language Detection**: Detects the document language.
+- **Stop Words Removal**: Removes stop words (with caching for optimization).
+- **Word Frequency Counting**: Counts word frequencies.
+- **Phrase Search**: Searches for specific phrases.
+- **Metadata Extraction**: Extracts PDF metadata.
+- **Multilingual Support**: Supports multiple languages (based on NLTK's stopwords corpus).
 
 ## Error Handling
 
-The script includes error handling for PDF download failures, text extraction issues, and language detection problems.
+The script includes comprehensive error handling for:
+
+- PDF download failures
+- Text extraction issues
+- Language detection problems
+
+## Installation
+
+To install the PDF Text Analyzer, clone this repository and install the dependencies:
+
+```sh
+git clone https://github.com/cortega26/PDF-Text-Analizer.git
+cd PDF-Text-Analyzer
+pip install -r requirements.txt
+```
 
 ## Contributing
 
-If you want to contribute to this project, please submit a pull request or open an issue for bugs and feature requests.
+If you want to contribute to this project, please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch (git checkout -b feature/your-feature).
+3. Commit your changes (git commit -am 'Add new feature').
+4. Push to the branch (git push origin feature/your-feature).
+5. Submit a pull request.
+
+For any bugs or feature requests, please open an issue.
 
 ## License
 
