@@ -31,19 +31,20 @@ class PdfProcessor:
 
     def download_pdf(self, retries=3, backoff=2) -> None:
         """Download a PDF file from a given URL with retry mechanism."""
-        for i in range(retries):
-            try:
-                response = requests.get(self.url, timeout=10)
-                response.raise_for_status()
-                self.pdf_content = io.BytesIO(response.content)
-                logging.info(" PDF downloaded successfully.")
-                break
-            except requests.exceptions.RequestException as e:
-                logging.error(f" Failed to download PDF: {e}")
-                logging.info(" Retrying...")
-                time.sleep(backoff ** i)
-        else:
-            raise requests.exceptions.RequestException(" Failed to download PDF after retries.")
+        with requests.Session() as session:
+            for i in range(retries):
+                try:
+                    response = session.get(self.url, timeout=10)
+                    response.raise_for_status()
+                    self.pdf_content = io.BytesIO(response.content)
+                    logging.info(" PDF downloaded successfully.")
+                    break
+                except requests.exceptions.RequestException as e:
+                    logging.error(f" Failed to download PDF: {e}")
+                    logging.info(" Retrying...")
+                    time.sleep(backoff ** i)
+            else:
+                raise requests.exceptions.RequestException(" Failed to download PDF after retries.")
 
     def convert_to_text(self) -> None:
         """Convert the downloaded PDF file to text using PyMuPDF."""
