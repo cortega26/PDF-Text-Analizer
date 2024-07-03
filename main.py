@@ -3,6 +3,8 @@ import re
 import logging
 import string
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
+import functools
 
 import nltk
 import requests
@@ -12,7 +14,6 @@ from languages import languages
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
-
 
 class PdfProcessor:
     """Class to process PDF files."""
@@ -27,7 +28,7 @@ class PdfProcessor:
     def download_pdf(self) -> None:
         """Download a PDF file from a given URL."""
         try:
-            response = requests.get(self.url, timeout=10)
+            response = requests.get(self.url)
             response.raise_for_status()
             self.pdf_content = io.BytesIO(response.content)
             logging.info("PDF downloaded successfully.")
@@ -39,7 +40,10 @@ class PdfProcessor:
         """Convert the downloaded PDF file to text."""
         try:
             pdf_reader = PdfReader(self.pdf_content)
-            self.pdf_text = ''.join([page.extract_text() for page in pdf_reader.pages if page.extract_text()])
+            with ThreadPoolExecutor() as executor:
+                pages = list(pdf_reader.pages)
+                texts = executor.map(lambda page: page.extract_text(), pages)
+                self.pdf_text = ''.join(text for text in texts if text)
             logging.info("PDF converted to text successfully.")
         except Exception as e:
             logging.error(f"Failed to convert PDF to text: {e}")
@@ -63,11 +67,17 @@ class PdfProcessor:
             logging.error(f"Failed to download NLTK data: {e}")
             raise e
 
+    @staticmethod
+    @functools.lru_cache(maxsize=10)
+    def get_cached_stop_words(language_code: str) -> set:
+        """Get stop words for the detected language and cache the results."""
+        language_name = languages.get(language_code.lower(), language_code)
+        return set(nltk.corpus.stopwords.words(language_name))
+
     def get_stop_words(self) -> None:
         """Get stop words for the detected language."""
         if self.language_code:
-            language_name = languages.get(self.language_code.lower(), self.language_code)
-            self.stop_words = set(nltk.corpus.stopwords.words(language_name))
+            self.stop_words = PdfProcessor.get_cached_stop_words(self.language_code)
         else:
             self.stop_words = set()
 
@@ -106,32 +116,35 @@ class PdfProcessor:
 
     def main(self, word_or_phrase: str) -> dict:
         """
-        Run the main program, which downloads a PDF file from a given URL, converts it to text,
-        removes stop words, and counts the occurrences of the top 10 most common words and a given
-        word or phrase in the text.
+        Run the main program, which downloads a PDF file from a given URL, converts it to text, removes stop words, and counts the occurrences of the top 10 most common words and a given word or phrase in the text.
         Returns: dict: A dictionary containing the results.
         """
-        self.download_pdf()
-        self.convert_to_text()
-        self.detect_language()
+        try:
+            self.download_pdf()
+            self.convert_to_text()
+            self.detect_language()
 
-        if self.language_code is None:
-            raise Exception("Language not detected.")
+            if self.language_code is None:
+                raise Exception("Language not detected.")
 
-        self.download_nltk_data()
-        self.get_stop_words()
+            self.download_nltk_data()
+            self.get_stop_words()
 
-        word_counts = self.count_words()
-        word_or_phrase_count = self.count_word_or_phrase(word_or_phrase)
-        metadata = self.extract_metadata()
+            word_counts = self.count_words()
+            word_or_phrase_count = self.count_word_or_phrase(word_or_phrase)
+            metadata = self.extract_metadata()
 
-        results = {
-            "Metadata": metadata,
-            "Language": languages.get(self.language_code, self.language_code),
-            "Top 10 Words": word_counts,
-            f"Occurrences of '{word_or_phrase}'": word_or_phrase_count
-        }
-        return results
+            results = {
+                "Metadata": metadata,
+                "Language": languages.get(self.language_code, self.language_code),
+                "Top 10 Words": word_counts,
+                f"Occurrences of '{word_or_phrase}'": word_or_phrase_count
+            }
+            return results
+        except Exception as e:
+            logging.error(f"An error occurred: {e}")
+            return {"Error": str(e)}
+
 
 # Example usage
 pdf_processor = PdfProcessor("https://antilogicalism.com/wp-content/uploads/2017/07/atlas-shrugged.pdf")
