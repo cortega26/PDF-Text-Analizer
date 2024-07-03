@@ -1,72 +1,51 @@
 # PDF Text Analyzer
 
-PDF Text Analyzer is a Python script that downloads a PDF from a URL, converts it to text, and performs text analysis. The text analysis includes detecting the language of the text, removing stopwords, and counting the frequency of words and phrases. The script supports multiple languages.
+PDF Text Analyzer is a Python class that downloads a PDF from a URL, converts it to text, and performs text analysis. The analysis includes detecting the language of the text, removing stopwords, counting word frequencies, searching for specific phrases, and extracting metadata.
 
 ## Requirements
 
-To run the script, you need to have Python 3.x installed on your system. You also need to install the following libraries:
+To use this class, you need Python 3.x and the following libraries:
 
-- [requests](https://pypi.org/project/requests/)
-- [PyPDF2](https://pypi.org/project/PyPDF2/)
-- [nltk](https://pypi.org/project/nltk/)
-- [langdetect](https://pypi.org/project/langdetect/)
+- requests
+- PyMuPDF (fitz)
+- nltk
+- langdetect
 
 ## Usage
 
-1. Run the script: ```python3 main.py -u "https://www.example.com/document.pdf" -s "example phrase"```
-2. Enter the URL of the PDF you want to analyze
-3. Enter a word or phrase to search for in the text (optional)
-4. The script will then download the PDF, extract the text, and perform analysis on the text
-5. The analysis includes word frequency counts, most common words, and a search for a specific word or phrase
+1. Import the `PdfProcessor` class from the script.
+2. Create an instance of `PdfProcessor` with a PDF URL.
+3. Call the `main` method with an optional search phrase.
 
-## Supported Languages
+Example:
 
-- Arabic
-- Azerbaijani
-- Basque
-- Bengali
-- Catalan
-- Chinese
-- Danish
-- Dutch
-- English
-- Finnish
-- French
-- German
-- Greek
-- Hebrew
-- Hinglish
-- Hungarian
-- Indonesian
-- Italian
-- Kazakh
-- Nepali
-- Norwegian
-- Portuguese
-- Romanian
-- Russian
-- Slovene
-- Spanish
-- Swedish
-- Tajik
-- Turkish
+```python
+from pdf_processor import PdfProcessor
 
-## Bug Reports
+pdf_processor = PdfProcessor("https://example.com/document.pdf")
+results = pdf_processor.main("example phrase")
+print(results)
+```
 
-If you find a bug or issue, you can report it on the issue tracker on GitHub.
+## Features
 
-## Feature Requests
+- Downloads PDF with retry mechanism
+- Extracts text using multithreading for efficiency
+- Detects document language
+- Removes stop words (with caching for optimization)
+- Counts word frequencies
+- Searches for specific phrases
+- Extracts PDF metadata
+- Supports multiple languages (based on NLTK's stopwords corpus)
 
-If you want to request a new feature, you can open an issue on the issue tracker on GitHub.
+## Error Handling
 
-## Contact
-
-If you have any questions or comments, you can contact me for details.
+The script includes error handling for PDF download failures, text extraction issues, and language detection problems.
 
 ## Contributing
 
-If you want to contribute to this project, you can fork the repository, make your changes, and submit a pull request.
+If you want to contribute to this project, please submit a pull request or open an issue for bugs and feature requests.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/cortega26/PDF-Text-Analizer/blob/main/license.md)
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
