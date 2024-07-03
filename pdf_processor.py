@@ -18,7 +18,6 @@ logging.basicConfig(level=logging.INFO)
 
 class PdfProcessor:
     """Class to process PDF files."""
-    
     def __init__(self, url: str) -> None:
         parsed_url = urlparse(url)
         if not all([parsed_url.scheme, parsed_url.netloc]):
