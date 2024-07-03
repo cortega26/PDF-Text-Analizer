@@ -138,7 +138,7 @@ class PdfProcessor:
         formatted_results = [
             "\nPDF Analysis Results",
             "=" * 20,
-            f"\nMetadata:\n" + "\n".join([f"  {key}: {value}" for key, value in results['Metadata'].items()]),
+            "\nMetadata:\n" + "\n".join([f"  {key}: {value}" for key, value in results['Metadata'].items()]),
             f"\nLanguage: {results['Language']}",
             "\nTop 10 Words:",
             "\n".join([f"  {word}: {count}" for word, count in results['Top 10 Words'].items()]),
