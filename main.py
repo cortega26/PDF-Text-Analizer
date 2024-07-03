@@ -1,17 +1,18 @@
 import io
-import re
+import functools
 import logging
+import re
 import string
+import time
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
-import functools
+from languages import languages
 from urllib.parse import urlparse
 
 import nltk
 import requests
 from langdetect import detect, lang_detect_exception
 import fitz
-from languages import languages
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -31,7 +32,7 @@ class PdfProcessor:
 
     def download_pdf(self, retries=3, backoff=2) -> None:
         """Download a PDF file from a given URL with retry mechanism."""
-        for _ in range(retries):
+        for i in range(retries):
             try:
                 response = requests.get(self.url, timeout=10)
                 response.raise_for_status()
@@ -41,7 +42,7 @@ class PdfProcessor:
             except requests.exceptions.RequestException as e:
                 logging.error(f" Failed to download PDF: {e}")
                 logging.info(" Retrying...")
-                time.sleep(backoff ** _)
+                time.sleep(backoff ** i)
         else:
             raise requests.exceptions.RequestException(" Failed to download PDF after retries.")
 
