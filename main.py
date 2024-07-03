@@ -39,11 +39,11 @@ class PdfProcessor:
                 logging.info(" PDF downloaded successfully.")
                 break
             except requests.exceptions.RequestException as e:
-                logging.error(f"Failed to download PDF: {e}")
-                logging.info("Retrying...")
+                logging.error(f" Failed to download PDF: {e}")
+                logging.info(" Retrying...")
                 time.sleep(backoff ** _)
         else:
-            raise requests.exceptions.RequestException("Failed to download PDF after retries.")
+            raise requests.exceptions.RequestException(" Failed to download PDF after retries.")
 
     def convert_to_text(self) -> None:
         """Convert the downloaded PDF file to text using PyMuPDF."""
@@ -55,7 +55,7 @@ class PdfProcessor:
                 self.pdf_text = ''.join(texts)
             logging.info(" PDF converted to text successfully.")
         except Exception as e:
-            logging.error(f"Failed to convert PDF to text: {e}")
+            logging.error(f" Failed to convert PDF to text: {e}")
             raise e
 
     @staticmethod
@@ -70,7 +70,7 @@ class PdfProcessor:
             logging.info(f" Detected language: {self.language_code}")
         except lang_detect_exception.LangDetectException:
             self.language_code = None
-            logging.warning("Language detection failed.")
+            logging.warning(" Language detection failed.")
 
     def download_nltk_data(self) -> None:
         """Download required NLTK data."""
@@ -78,7 +78,7 @@ class PdfProcessor:
             nltk.download('stopwords', quiet=True)
             nltk.download('punkt', quiet=True)
         except Exception as e:
-            logging.error(f"Failed to download NLTK data: {e}")
+            logging.error(f" Failed to download NLTK data: {e}")
             raise e
 
     @staticmethod
@@ -114,7 +114,7 @@ class PdfProcessor:
         try:
             return self.pdf_text.lower().count(word_or_phrase.lower())
         except Exception as e:
-            logging.error(f"Failed to count word or phrase: {e}")
+            logging.error(f" Failed to count word or phrase: {e}")
             return 0
 
     def extract_metadata(self) -> dict:
@@ -125,7 +125,7 @@ class PdfProcessor:
             logging.info(" PDF metadata extracted successfully.")
             return metadata
         except Exception as e:
-            logging.error(f"Failed to extract metadata: {e}")
+            logging.error(f" Failed to extract metadata: {e}")
             return {}
 
     def format_results(self, results: dict) -> str:
@@ -173,14 +173,8 @@ class PdfProcessor:
             logging.error(f"An error occurred: {e}")
             return f"Error: {str(e)}"
 
+# Example usage
 if __name__ == "__main__":
-    import time
-
-    start = time.time()
-
-    # Example usage
     pdf_processor = PdfProcessor("https://antilogicalism.com/wp-content/uploads/2017/07/atlas-shrugged.pdf")
     print(pdf_processor.main('Who is John Galt?'))
 
-    end = time.time()
-    print(f"Execution time: {end - start} seconds")
