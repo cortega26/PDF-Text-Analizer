@@ -1,5 +1,5 @@
-import io
 import functools
+import io
 import logging
 import re
 import string
@@ -14,7 +14,6 @@ import requests
 from langdetect import detect, lang_detect_exception
 import fitz
 
-# Set up logging
 logging.basicConfig(level=logging.INFO)
 
 class PdfProcessor:
@@ -134,7 +133,7 @@ class PdfProcessor:
         formatted_results = [
             "\nPDF Analysis Results",
             "=" * 20,
-            f"Metadata:\n" + "\n".join([f"  {key}: {value}" for key, value in results['Metadata'].items()]),
+            f"\nMetadata:\n" + "\n".join([f"  {key}: {value}" for key, value in results['Metadata'].items()]),
             f"\nLanguage: {results['Language']}",
             "\nTop 10 Words:",
             "\n".join([f"  {word}: {count}" for word, count in results['Top 10 Words'].items()]),
@@ -174,7 +173,3 @@ class PdfProcessor:
             logging.error(f"An error occurred: {e}")
             return f"Error: {str(e)}"
 
-# Example usage
-if __name__ == "__main__":
-    pdf_processor = PdfProcessor("https://antilogicalism.com/wp-content/uploads/2017/07/atlas-shrugged.pdf")
-    print(pdf_processor.main('Who is John Galt?'))
