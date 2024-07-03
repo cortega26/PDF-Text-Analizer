@@ -148,7 +148,8 @@ class PdfProcessor:
 
     def main(self, word_or_phrase: str) -> str:
         """
-        Run the main program, which downloads a PDF file from a given URL, converts it to text, removes stop words, and counts the occurrences of the top 10 most common words and a given word or phrase in the text.
+        Run the main program, which downloads a PDF file from a given URL, converts it to text, removes stop
+        words, and counts the occurrences of the top 10 most common words and a given word or phrase in the text.
         Returns: str: A formatted string containing the results.
         """
         try:
