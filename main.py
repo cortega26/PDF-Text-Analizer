@@ -5,11 +5,12 @@ import string
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 import functools
+from urllib.parse import urlparse
 
 import nltk
 import requests
 from langdetect import detect, lang_detect_exception
-from pypdf import PdfReader
+import fitz
 from languages import languages
 
 # Set up logging
@@ -19,41 +20,54 @@ class PdfProcessor:
     """Class to process PDF files."""
     
     def __init__(self, url: str) -> None:
+        parsed_url = urlparse(url)
+        if not all([parsed_url.scheme, parsed_url.netloc]):
+            raise ValueError("Invalid URL provided.")
         self.url = url
         self.pdf_text = ""
         self.language_code = None
         self.pdf_content = None
         self.stop_words = set()
 
-    def download_pdf(self) -> None:
-        """Download a PDF file from a given URL."""
-        try:
-            response = requests.get(self.url)
-            response.raise_for_status()
-            self.pdf_content = io.BytesIO(response.content)
-            logging.info("PDF downloaded successfully.")
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Failed to download PDF: {e}")
-            raise e
+    def download_pdf(self, retries=3, backoff=2) -> None:
+        """Download a PDF file from a given URL with retry mechanism."""
+        for _ in range(retries):
+            try:
+                response = requests.get(self.url, timeout=10)
+                response.raise_for_status()
+                self.pdf_content = io.BytesIO(response.content)
+                logging.info(" PDF downloaded successfully.")
+                break
+            except requests.exceptions.RequestException as e:
+                logging.error(f"Failed to download PDF: {e}")
+                logging.info("Retrying...")
+                time.sleep(backoff ** _)
+        else:
+            raise requests.exceptions.RequestException("Failed to download PDF after retries.")
 
     def convert_to_text(self) -> None:
-        """Convert the downloaded PDF file to text."""
+        """Convert the downloaded PDF file to text using PyMuPDF."""
         try:
-            pdf_reader = PdfReader(self.pdf_content)
+            pdf_document = fitz.open(stream=self.pdf_content, filetype="pdf")
             with ThreadPoolExecutor() as executor:
-                pages = list(pdf_reader.pages)
-                texts = executor.map(lambda page: page.extract_text(), pages)
-                self.pdf_text = ''.join(text for text in texts if text)
-            logging.info("PDF converted to text successfully.")
+                pages = [pdf_document.load_page(i) for i in range(len(pdf_document))]
+                texts = executor.map(self.extract_text_from_page, pages)
+                self.pdf_text = ''.join(texts)
+            logging.info(" PDF converted to text successfully.")
         except Exception as e:
             logging.error(f"Failed to convert PDF to text: {e}")
             raise e
+
+    @staticmethod
+    def extract_text_from_page(page) -> str:
+        """Extract text from a single PDF page."""
+        return page.get_text()
 
     def detect_language(self) -> None:
         """Detect the language of the PDF text."""
         try:
             self.language_code = detect(self.pdf_text)
-            logging.info(f"Detected language: {self.language_code}")
+            logging.info(f" Detected language: {self.language_code}")
         except lang_detect_exception.LangDetectException:
             self.language_code = None
             logging.warning("Language detection failed.")
@@ -61,8 +75,8 @@ class PdfProcessor:
     def download_nltk_data(self) -> None:
         """Download required NLTK data."""
         try:
-            nltk.download('stopwords')
-            nltk.download('punkt')
+            nltk.download('stopwords', quiet=True)
+            nltk.download('punkt', quiet=True)
         except Exception as e:
             logging.error(f"Failed to download NLTK data: {e}")
             raise e
@@ -106,18 +120,31 @@ class PdfProcessor:
     def extract_metadata(self) -> dict:
         """Extract metadata from the PDF."""
         try:
-            pdf_reader = PdfReader(self.pdf_content)
-            metadata = pdf_reader.metadata
-            logging.info("PDF metadata extracted successfully.")
+            pdf_document = fitz.open(stream=self.pdf_content, filetype="pdf")
+            metadata = pdf_document.metadata
+            logging.info(" PDF metadata extracted successfully.")
             return metadata
         except Exception as e:
             logging.error(f"Failed to extract metadata: {e}")
             return {}
 
-    def main(self, word_or_phrase: str) -> dict:
+    def format_results(self, results: dict) -> str:
+        """Format the results for better readability."""
+        formatted_results = [
+            "\nPDF Analysis Results",
+            "=" * 20,
+            f"Metadata:\n" + "\n".join([f"  {key}: {value}" for key, value in results['Metadata'].items()]),
+            f"\nLanguage: {results['Language']}",
+            "\nTop 10 Words:",
+            "\n".join([f"  {word}: {count}" for word, count in results['Top 10 Words'].items()]),
+            f"\nOccurrences of '{results['Search Term']}': {results['Occurrences']}",
+        ]
+        return "\n".join(formatted_results)
+
+    def main(self, word_or_phrase: str) -> str:
         """
         Run the main program, which downloads a PDF file from a given URL, converts it to text, removes stop words, and counts the occurrences of the top 10 most common words and a given word or phrase in the text.
-        Returns: dict: A dictionary containing the results.
+        Returns: str: A formatted string containing the results.
         """
         try:
             self.download_pdf()
@@ -138,14 +165,22 @@ class PdfProcessor:
                 "Metadata": metadata,
                 "Language": languages.get(self.language_code, self.language_code),
                 "Top 10 Words": word_counts,
-                f"Occurrences of '{word_or_phrase}'": word_or_phrase_count
+                "Search Term": word_or_phrase,
+                "Occurrences": word_or_phrase_count
             }
-            return results
+            return self.format_results(results)
         except Exception as e:
             logging.error(f"An error occurred: {e}")
-            return {"Error": str(e)}
+            return f"Error: {str(e)}"
 
+if __name__ == "__main__":
+    import time
 
-# Example usage
-pdf_processor = PdfProcessor("https://antilogicalism.com/wp-content/uploads/2017/07/atlas-shrugged.pdf")
-print(pdf_processor.main('Who is John Galt?'))
+    start = time.time()
+
+    # Example usage
+    pdf_processor = PdfProcessor("https://antilogicalism.com/wp-content/uploads/2017/07/atlas-shrugged.pdf")
+    print(pdf_processor.main('Who is John Galt?'))
+
+    end = time.time()
+    print(f"Execution time: {end - start} seconds")
