@@ -36,26 +36,28 @@ class PdfProcessor:
                     response = session.get(self.url, timeout=10)
                     response.raise_for_status()
                     self.pdf_content = io.BytesIO(response.content)
-                    logging.info(" PDF downloaded successfully.")
+                    logging.info("PDF downloaded successfully.")
                     break
                 except requests.exceptions.RequestException as e:
-                    logging.error(f" Failed to download PDF: {e}")
-                    logging.info(" Retrying...")
+                    logging.error(f"Failed to download PDF: {e}")
+                    logging.info("Retrying...")
                     time.sleep(backoff ** i)
             else:
-                raise requests.exceptions.RequestException(" Failed to download PDF after retries.")
+                raise requests.exceptions.RequestException("Failed to download PDF after retries.")
 
     def convert_to_text(self) -> None:
         """Convert the downloaded PDF file to text using PyMuPDF."""
+        if not self.pdf_content:
+            raise ValueError("No PDF content to convert.")
         try:
             pdf_document = fitz.open(stream=self.pdf_content, filetype="pdf")
             with ThreadPoolExecutor() as executor:
                 pages = [pdf_document.load_page(i) for i in range(len(pdf_document))]
                 texts = executor.map(self.extract_text_from_page, pages)
                 self.pdf_text = ''.join(texts)
-            logging.info(" PDF converted to text successfully.")
+            logging.info("PDF converted to text successfully.")
         except Exception as e:
-            logging.error(f" Failed to convert PDF to text: {e}")
+            logging.error(f"Failed to convert PDF to text: {e}")
             raise
         finally:
             pdf_document.close()
@@ -67,12 +69,14 @@ class PdfProcessor:
 
     def detect_language(self) -> None:
         """Detect the language of the PDF text."""
+        if not self.pdf_text:
+            raise ValueError("No text to detect language.")
         try:
             self.language_code = detect(self.pdf_text)
-            logging.info(f" Detected language: {self.language_code}")
+            logging.info(f"Detected language: {self.language_code}")
         except lang_detect_exception.LangDetectException:
             self.language_code = None
-            logging.warning(" Language detection failed.")
+            logging.warning("Language detection failed.")
 
     def download_nltk_data(self) -> None:
         """Download required NLTK data."""
@@ -80,7 +84,7 @@ class PdfProcessor:
             nltk.download('stopwords', quiet=True)
             nltk.download('punkt', quiet=True)
         except Exception as e:
-            logging.error(f" Failed to download NLTK data: {e}")
+            logging.error(f"Failed to download NLTK data: {e}")
             raise
 
     @staticmethod
@@ -116,18 +120,20 @@ class PdfProcessor:
         try:
             return self.pdf_text.lower().count(word_or_phrase.lower())
         except Exception as e:
-            logging.error(f" Failed to count word or phrase: {e}")
+            logging.error(f"Failed to count word or phrase: {e}")
             return 0
 
     def extract_metadata(self) -> dict:
         """Extract metadata from the PDF."""
+        if not self.pdf_content:
+            raise ValueError("No PDF content to extract metadata.")
         try:
             pdf_document = fitz.open(stream=self.pdf_content, filetype="pdf")
             metadata = pdf_document.metadata
-            logging.info(" PDF metadata extracted successfully.")
+            logging.info("PDF metadata extracted successfully.")
             return metadata
         except Exception as e:
-            logging.error(f" Failed to extract metadata: {e}")
+            logging.error(f"Failed to extract metadata: {e}")
             return {}
         finally:
             pdf_document.close()
