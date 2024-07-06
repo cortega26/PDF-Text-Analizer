@@ -25,6 +25,7 @@ class PdfProcessor:
         self.url = url
         self.pdf_text = ""
         self.language_code = None
+        self.language_name = None
         self.pdf_content = None
         self.stop_words = set()
 
@@ -73,9 +74,11 @@ class PdfProcessor:
             raise ValueError("No text to detect language.")
         try:
             self.language_code = detect(self.pdf_text)
-            logging.info(f"Detected language: {self.language_code}")
+            self.language_name = languages.get(self.language_code.lower(), self.language_code)
+            logging.info(f"Detected language: {self.language_name} ({self.language_code})")
         except lang_detect_exception.LangDetectException:
             self.language_code = None
+            self.language_name = None
             logging.warning("Language detection failed.")
 
     def download_nltk_data(self) -> None:
@@ -89,15 +92,18 @@ class PdfProcessor:
 
     @staticmethod
     @functools.lru_cache(maxsize=10)
-    def get_cached_stop_words(language_code: str) -> set:
+    def get_cached_stop_words(language_name: str) -> set:
         """Get stop words for the detected language and cache the results."""
-        language_name = languages.get(language_code.lower(), language_code)
         return set(nltk.corpus.stopwords.words(language_name))
 
     def get_stop_words(self) -> None:
         """Get stop words for the detected language."""
-        if self.language_code:
-            self.stop_words = PdfProcessor.get_cached_stop_words(self.language_code)
+        if self.language_name:
+            try:
+                self.stop_words = PdfProcessor.get_cached_stop_words(self.language_name)
+            except nltk.corpus.reader.exceptions.CorpusReadError:
+                logging.warning(f"No stopwords available for {self.language_name}. Using empty set.")
+                self.stop_words = set()
         else:
             self.stop_words = set()
 
@@ -144,7 +150,7 @@ class PdfProcessor:
             "\nPDF Analysis Results",
             "=" * 20,
             "\nMetadata:\n" + "\n".join([f"  {key}: {value}" for key, value in results['Metadata'].items()]),
-            f"\nLanguage: {results['Language']}",
+            f"\nLanguage: {results['Language']} ({results['Language Code']})",
             "\nTop 10 Words:",
             "\n".join([f"  {word}: {count}" for word, count in results['Top 10 Words'].items()]),
             f"\nOccurrences of '{results['Search Term']}': {results['Occurrences']}",
@@ -174,7 +180,8 @@ class PdfProcessor:
 
             results = {
                 "Metadata": metadata,
-                "Language": languages.get(self.language_code, self.language_code),
+                "Language": self.language_name,
+                "Language Code": self.language_code,
                 "Top 10 Words": word_counts,
                 "Search Term": word_or_phrase,
                 "Occurrences": word_or_phrase_count
